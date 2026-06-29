@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>高校選びノート</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Zen Maru Gothic',sans-serif;min-height:100vh;
+  background:linear-gradient(160deg,#fce4f3 0%,#f3e8ff 40%,#dbeafe 100%);
+  padding:24px 16px 48px;position:relative;overflow-x:hidden;}
+.bubble{position:fixed;border-radius:50%;opacity:.18;filter:blur(40px);pointer-events:none;z-index:0;}
+.wrap{max-width:580px;margin:0 auto;position:relative;z-index:1;}
+.glass{background:rgba(255,255,255,.72);backdrop-filter:blur(12px);
+  border-radius:20px;border:1.5px solid rgba(255,255,255,.9);
+  box-shadow:0 4px 24px rgba(168,85,247,.10);}
+.header{text-align:center;margin-bottom:24px;}
+.header-inner{display:inline-block;padding:16px 32px;}
+.header h1{font-size:26px;font-weight:900;
+  background:linear-gradient(135deg,#9333ea,#6366f1);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.header p{font-size:12px;color:#a855f7;margin-top:3px;font-weight:600;}
+.section-label{font-size:11px;font-weight:700;color:#9333ea;margin-bottom:5px;}
+.pill-btn{padding:5px 12px;border-radius:99px;border:1.5px solid;font-weight:700;
+  font-size:12px;cursor:pointer;transition:all .15s;font-family:inherit;background:rgba(255,255,255,.6);}
+.filter-row,.sort-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.cards{display:grid;gap:10px;}
+.card{padding:18px 20px;transition:transform .18s,box-shadow .18s;cursor:default;}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(168,85,247,.15);}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.card-left{display:flex;gap:10px;flex:1;min-width:0;}
+.rank-badge{display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;border-radius:50%;font-size:12px;font-weight:900;flex-shrink:0;margin-top:2px;}
+.school-name{font-size:17px;font-weight:900;color:#3b0764;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.chips-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;}
+.chip{display:inline-flex;align-items:center;gap:3px;border-radius:99px;
+  padding:3px 10px;font-size:11px;font-weight:700;white-space:nowrap;}
+.chip-purple{background:#ede9fe;color:#6d28d9;}
+.chip-blue{background:#dbeafe;color:#1d4ed8;}
+.chip-green{background:#d1fae5;color:#065f46;}
+.chip-yellow{background:#fef9c3;color:#92400e;}
+.chip-red{background:#fee2e2;color:#991b1b;}
+.chip-gray{background:#f3f4f6;color:#374151;}
+.chip-sky{background:#e0f2fe;color:#0369a1;}
+.chip-pink{background:#fce7f3;color:#9d174d;}
+.chip-orange{background:#ffedd5;color:#9a3412;}
+.divider{height:1px;background:linear-gradient(90deg,transparent,#e9d5ff,transparent);margin:10px 0;}
+.bottom-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.stars{display:flex;align-items:center;gap:2px;margin-left:auto;}
+.star{font-size:14px;}
+.uniform-label{font-size:11px;color:#9333ea;font-weight:700;margin-left:3px;}
+.uniform-memo{font-size:11px;color:#7c3aed;margin-top:4px;}
+.memo-box{background:linear-gradient(135deg,rgba(237,233,254,.6),rgba(219,234,254,.6));
+  border-left:3px solid #a855f7;border-radius:10px;padding:8px 12px;
+  font-size:12px;color:#4b5563;margin-top:8px;}
+.btn-group{display:flex;gap:5px;}
+.edit-btn{padding:4px 10px;border-radius:8px;border:1.5px solid #e9d5ff;
+  background:rgba(255,255,255,.8);font-size:11px;font-weight:700;cursor:pointer;color:#7c3aed;font-family:inherit;}
+.del-btn{padding:4px 10px;border-radius:8px;border:1.5px solid #fca5a5;
+  background:rgba(255,255,255,.8);font-size:11px;font-weight:700;cursor:pointer;color:#dc2626;font-family:inherit;}
+.add-btn{width:100%;padding:15px;border-radius:16px;border:2.5px dashed #c084fc;
+  background:rgba(255,255,255,.5);color:#9333ea;font-weight:800;font-size:15px;
+  cursor:pointer;font-family:inherit;transition:background .15s;margin-top:12px;}
+.add-btn:hover{background:rgba(255,255,255,.8);}
+.empty{text-align:center;padding:40px 20px;}
+.empty-icon{font-size:36px;margin-bottom:8px;}
+.empty-text{color:#9ca3af;font-size:13px;font-weight:600;}
+/* Form */
+.form-wrap{padding:20px;border:1.5px solid rgba(168,85,247,.3);}
+.form-title{font-size:15px;font-weight:900;margin-bottom:16px;
+  background:linear-gradient(135deg,#9333ea,#6366f1);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.form-grid{display:grid;gap:14px;}
+.form-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+label.lbl{display:block;font-size:12px;font-weight:700;color:#7c3aed;margin-bottom:4px;}
+input,textarea,select{font-family:'Zen Maru Gothic',sans-serif;width:100%;
+  padding:9px 12px;border-radius:10px;border:1.5px solid #e9d5ff;font-size:14px;
+  background:rgba(255,255,255,.8);outline:none;transition:border-color .15s;}
+input:focus,textarea:focus,select:focus{border-color:#a855f7;background:#fff;}
+.pill-group{display:flex;gap:6px;flex-wrap:wrap;}
+.star-pick{font-size:24px;cursor:pointer;transition:transform .12s;opacity:.2;}
+.star-pick.active{opacity:1;}
+.star-pick:hover{transform:scale(1.3);}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;}
+.cancel-btn{padding:10px 20px;border-radius:12px;border:1.5px solid #e9d5ff;
+  background:#fff;color:#6d28d9;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;}
+.save-btn{padding:10px 28px;border-radius:12px;border:none;
+  background:linear-gradient(135deg,#a855f7,#6366f1);color:#fff;font-weight:800;
+  font-size:15px;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(168,85,247,.35);}
+.save-btn:hover{box-shadow:0 6px 20px rgba(168,85,247,.45);}
+.hidden{display:none!important;}
+</style>
+</head>
+<body>
+<div class="bubble" style="width:320px;height:320px;background:#f0abfc;top:-80px;left:-100px;"></div>
+<div class="bubble" style="width:260px;height:260px;background:#818cf8;top:200px;right:-80px;"></div>
+<div class="bubble" style="width:200px;height:200px;background:#67e8f9;bottom:100px;left:30px;"></div>
+<div class="bubble" style="width:180px;height:180px;background:#f9a8d4;bottom:-60px;right:60px;"></div>
+
+<div class="wrap">
+  <div class="header">
+    <div class="glass header-inner">
+      <h1>🏫 高校選びノート</h1>
+      <p>気になる学校をメモして比較しよう ✨</p>
+    </div>
+  </div>
+
+  <!-- リスト画面 -->
+  <div id="listView">
+    <div class="section-label">🔍 絞り込み</div>
+    <div class="filter-row">
+      <button class="pill-btn" data-filter="all" onclick="setFilter('all')">すべて</button>
+      <button class="pill-btn" data-filter="public" onclick="setFilter('public')">🏛 都立</button>
+      <button class="pill-btn" data-filter="private" onclick="setFilter('private')">🎀 私立</button>
+      <button class="pill-btn" data-filter="pool_ok" onclick="setFilter('pool_ok')">🏊 プールOK</button>
+      <button class="pill-btn" data-filter="volley_ok" onclick="setFilter('volley_ok')">🏐 バレー部あり</button>
+      <button class="pill-btn" data-filter="both" onclick="setFilter('both')">💜 両方OK</button>
+    </div>
+    <div class="section-label">↕️ 並び替え</div>
+    <div class="sort-row">
+      <button class="pill-btn" data-sort="uniform" onclick="setSort('uniform')">⭐ 制服評価順</button>
+      <button class="pill-btn" data-sort="deviation" onclick="setSort('deviation')">📊 偏差値が高い順</button>
+      <button class="pill-btn" data-sort="commute_asc" onclick="setSort('commute_asc')">🚃 通学時間が短い順</button>
+      <button class="pill-btn" data-sort="commute_desc" onclick="setSort('commute_desc')">🚃 通学時間が長い順</button>
+    </div>
+    <div class="cards" id="cardsContainer"></div>
+    <button class="add-btn" onclick="openForm()">＋ 学校を追加する</button>
+  </div>
+
+  <!-- フォーム画面 -->
+  <div id="formView" class="glass form-wrap hidden">
+    <div class="form-title" id="formTitle">✏️ 学校を追加</div>
+    <div class="form-grid">
+      <div class="form-row2" style="align-items:end;">
+        <div>
+          <label class="lbl">学校名 *</label>
+          <input id="f_name" placeholder="〇〇高校"/>
+        </div>
+        <div>
+          <label class="lbl">種別</label>
+          <div class="pill-group" id="f_type_group">
+            <button class="pill-btn" data-val="都立" onclick="pickType(this)">都立</button>
+            <button class="pill-btn" data-val="私立" onclick="pickType(this)">私立</button>
+            <button class="pill-btn" data-val="国立" onclick="pickType(this)">国立</button>
+            <button class="pill-btn" data-val="その他" onclick="pickType(this)">その他</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <label class="lbl">所在地（東京都）</label>
+        <select id="f_area">
+          <option value="">選択してください</option>
+          <option>千代田区</option><option>中央区</option><option>港区</option><option>新宿区</option>
+          <option>文京区</option><option>台東区</option><option>墨田区</option><option>江東区</option>
+          <option>品川区</option><option>目黒区</option><option>大田区</option><option>世田谷区</option>
+          <option>渋谷区</option><option>中野区</option><option>杉並区</option><option>豊島区</option>
+          <option>北区</option><option>荒川区</option><option>板橋区</option><option>練馬区</option>
+          <option>足立区</option><option>葛飾区</option><option>江戸川区</option>
+          <option>八王子市</option><option>立川市</option><option>武蔵野市</option><option>三鷹市</option>
+          <option>府中市</option><option>調布市</option><option>町田市</option><option>小金井市</option>
+          <option>国分寺市</option><option>国立市</option><option>西東京市</option>
+          <option>その他（東京都）</option><option>東京都外</option>
+        </select>
+      </div>
+      <div class="form-row2">
+        <div>
+          <label class="lbl">偏差値</label>
+          <input id="f_deviation" type="number" min="30" max="80" placeholder="例: 58"/>
+        </div>
+        <div>
+          <label class="lbl">自宅からの通学時間（分）</label>
+          <input id="f_commute" type="number" min="0" placeholder="例: 35"/>
+        </div>
+      </div>
+      <div>
+        <label class="lbl">学科</label>
+        <div class="pill-group" id="f_dept_group">
+          <button class="pill-btn" data-val="普通科" onclick="pickDept(this)">普通科</button>
+          <button class="pill-btn" data-val="理数科" onclick="pickDept(this)">理数科</button>
+          <button class="pill-btn" data-val="英語科" onclick="pickDept(this)">英語科</button>
+          <button class="pill-btn" data-val="商業科" onclick="pickDept(this)">商業科</button>
+          <button class="pill-btn" data-val="その他" onclick="pickDept(this)">その他</button>
+        </div>
+        <input id="f_dept_custom" style="margin-top:6px;display:none;" placeholder="学科名を入力"/>
+      </div>
+      <div>
+        <label class="lbl">最寄り駅・バス停</label>
+        <input id="f_station" placeholder="例: ○○駅"/>
+        <div class="pill-group" style="margin-top:7px;" id="f_access_group">
+          <button class="pill-btn" data-val="徒歩" onclick="pickAccess(this)">🚶 徒歩</button>
+          <button class="pill-btn" data-val="バス" onclick="pickAccess(this)">🚌 バス</button>
+          <button class="pill-btn" data-val="徒歩＋バス" onclick="pickAccess(this)">🚶🚌 徒歩＋バス</button>
+        </div>
+        <input id="f_access_min" type="number" min="0" style="margin-top:7px;" placeholder="駅・バス停から何分？"/>
+      </div>
+      <div style="height:1px;background:linear-gradient(90deg,transparent,#e9d5ff,transparent);"></div>
+      <div>
+        <label class="lbl">制服のかわいさ ⭐</label>
+        <div style="display:flex;align-items:center;gap:4px;" id="f_star_group">
+          <span class="star-pick" data-n="1" onclick="pickStar(1)">⭐</span>
+          <span class="star-pick" data-n="2" onclick="pickStar(2)">⭐</span>
+          <span class="star-pick" data-n="3" onclick="pickStar(3)">⭐</span>
+          <span class="star-pick" data-n="4" onclick="pickStar(4)">⭐</span>
+          <span class="star-pick" data-n="5" onclick="pickStar(5)">⭐</span>
+          <span id="f_star_label" style="font-size:13px;color:#9333ea;margin-left:6px;font-weight:700;">未評価</span>
+        </div>
+        <input id="f_uniform_memo" style="margin-top:7px;" placeholder="制服メモ（色、スカートの形など）"/>
+      </div>
+      <div class="form-row2">
+        <div>
+          <label class="lbl">プール 🏊</label>
+          <div class="pill-group" id="f_pool_group">
+            <button class="pill-btn" data-val="なし" onclick="pickPool(this)">なし</button>
+            <button class="pill-btn" data-val="選択回避可" onclick="pickPool(this)">選択回避可</button>
+            <button class="pill-btn" data-val="あり" onclick="pickPool(this)">あり</button>
+          </div>
+        </div>
+        <div>
+          <label class="lbl">バレーボール部 🏐</label>
+          <div class="pill-group" id="f_volley_group">
+            <button class="pill-btn" data-val="あり（ゆるめ）" onclick="pickVolley(this)">あり（ゆるめ）</button>
+            <button class="pill-btn" data-val="あり（ガチ）" onclick="pickVolley(this)">あり（ガチ）</button>
+            <button class="pill-btn" data-val="なし" onclick="pickVolley(this)">なし</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <label class="lbl">メモ・気になること 📝</label>
+        <textarea id="f_memo" style="height:72px;resize:vertical;" placeholder="見学の感想、口コミなど"></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="cancel-btn" onclick="closeForm()">キャンセル</button>
+        <button class="save-btn" onclick="saveSchool()">💾 保存する</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let schools=[];
+let editIdx=null;
+let curFilter='all';
+let curSort='uniform';
+let curStar=0;
+let curType='私立';
+let curDept='普通科';
+let curAccess='徒歩';
+let curPool='なし';
+let curVolley='あり（ゆるめ）';
+
+const starLabels=['','😕','🙂','😊','😍','✨'];
+const rankEmoji=['','🥇','🥈','🥉'];
+const rankColors=['','#f59e0b','#6b7280','#cd7c2f'];
+
+function setFilter(f){
+  curFilter=f;
+  document.querySelectorAll('[data-filter]').forEach(b=>{
+    b.style.background=b.dataset.filter===f?'linear-gradient(135deg,#a855f7,#6366f1)':'rgba(255,255,255,.6)';
+    b.style.color=b.dataset.filter===f?'#fff':'#6b7280';
+    b.style.borderColor=b.dataset.filter===f?'#a855f7':'rgba(255,255,255,.7)';
+  });
+  render();
+}
+function setSort(s){
+  curSort=s;
+  document.querySelectorAll('[data-sort]').forEach(b=>{
+    b.style.background=b.dataset.sort===s?'linear-gradient(135deg,#6366f1,#8b5cf6)':'rgba(255,255,255,.6)';
+    b.style.color=b.dataset.sort===s?'#fff':'#6b7280';
+    b.style.borderColor=b.dataset.sort===s?'#6366f1':'rgba(255,255,255,.7)';
+  });
+  render();
+}
+
+function chip(label,cls){return `<span class="chip ${cls}">${label}</span>`;}
+function schoolTypeChip(t){
+  if(t==='都立') return chip('🏛 都立','chip-blue');
+  if(t==='私立') return chip('🎀 私立','chip-pink');
+  if(t==='国立') return chip('🎓 国立','chip-orange');
+  return chip(t,'chip-gray');
+}
+function poolChip(v){
+  if(v==='なし') return chip('🏊 プールなし','chip-green');
+  if(v==='選択回避可') return chip('🏊 選択回避可','chip-yellow');
+  return chip('🏊 プールあり','chip-red');
+}
+function volleyChip(v){
+  if(v==='あり（ゆるめ）') return chip('🏐 バレー部✓ゆるめ','chip-purple');
+  if(v==='あり（ガチ）') return chip('🏐 バレー部✓ガチ','chip-blue');
+  return chip('🏐 バレー部なし','chip-gray');
+}
+function starsHtml(n){
+  return [1,2,3,4,5].map(i=>`<span class="star" style="opacity:${n>=i?1:.18}">⭐</span>`).join('');
+}
+
+function render(){
+  let list=[...schools];
+  list=list.filter(s=>{
+    if(curFilter==='pool_ok') return s.pool!=='あり';
+    if(curFilter==='volley_ok') return s.volley!=='なし';
+    if(curFilter==='both') return s.pool!=='あり'&&s.volley!=='なし';
+    if(curFilter==='public') return s.schoolType==='都立';
+    if(curFilter==='private') return s.schoolType==='私立';
+    return true;
+  });
+  list.sort((a,b)=>{
+    if(curSort==='deviation') return (Number(b.deviation)||0)-(Number(a.deviation)||0);
+    if(curSort==='commute_asc') return (Number(a.commute)||999)-(Number(b.commute)||999);
+    if(curSort==='commute_desc') return (Number(b.commute)||0)-(Number(a.commute)||0);
+    return (Number(b.uniform)||0)-(Number(a.uniform)||0);
+  });
+
+  const cont=document.getElementById('cardsContainer');
+  if(list.length===0){
+    cont.innerHTML=`<div class="glass empty"><div class="empty-icon">🌸</div><div class="empty-text">${schools.length===0?'まだ学校が登録されていません':'条件に合う学校がありません'}</div></div>`;
+    return;
+  }
+  cont.innerHTML=list.map((s,i)=>{
+    const realIdx=schools.indexOf(s);
+    const rank=i+1;
+    const deptLabel=s.dept==='その他'?(s.deptCustom||'その他'):s.dept;
+    const rankBadge=rank<=3?`<div class="rank-badge" style="background:${rankColors[rank]}22;color:${rankColors[rank]};border:2px solid ${rankColors[rank]}44;">${rankEmoji[rank]}</div>`:'';
+    const areaChip=s.area?chip(`📍 東京都 ${s.area}`,'chip-gray'):'';
+    const stationChip=s.station?chip(`🚉 ${s.station}${s.accessMin?` ${s.accessType}${s.accessMin}分`:''}`,'chip-sky'):'';
+    const commuteChip=s.commute?chip(`🚃 通学${s.commute}分`,'chip-gray'):'';
+    const deviationChip=s.deviation?chip(`偏差値 ${s.deviation}`,'chip-purple'):'';
+    const uMemo=s.uniformMemo?`<div class="uniform-memo">👗 ${s.uniformMemo}</div>`:'';
+    const memoBox=s.memo?`<div class="memo-box">📝 ${s.memo}</div>`:'';
+    return `<div class="glass card">
+      <div class="card-top">
+        <div class="card-left">
+          ${rankBadge}
+          <div style="flex:1;min-width:0;">
+            <div class="school-name">${s.name}</div>
+            <div class="chips-row">${schoolTypeChip(s.schoolType)}${chip(deptLabel,'chip-blue')}${deviationChip}</div>
+            <div class="chips-row">${areaChip}${stationChip}${commuteChip}</div>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="edit-btn" onclick="openEdit(${realIdx})">編集</button>
+          <button class="del-btn" onclick="deleteSchool(${realIdx})">削除</button>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="bottom-row">
+        ${poolChip(s.pool)}${volleyChip(s.volley)}
+        <div class="stars">${starsHtml(s.uniform)}<span class="uniform-label">制服</span></div>
+      </div>
+      ${uMemo}${memoBox}
+    </div>`;
+  }).join('');
+}
+
+function pickGroup(groupId,val,activeStyle,inactiveStyle){
+  document.querySelectorAll(`#${groupId} .pill-btn`).forEach(b=>{
+    const on=b.dataset.val===val;
+    Object.assign(b.style,on?activeStyle:inactiveStyle);
+  });
+}
+const activeFilter={background:'linear-gradient(135deg,#ede9fe,#dbeafe)',borderColor:'#a855f7',color:'#6d28d9'};
+const inactiveFilter={background:'rgba(255,255,255,.7)',borderColor:'#e9d5ff',color:'#6b7280'};
+
+function pickType(btn){curType=btn.dataset.val;pickGroup('f_type_group',curType,activeFilter,inactiveFilter);}
+function pickDept(btn){
+  curDept=btn.dataset.val;
+  pickGroup('f_dept_group',curDept,activeFilter,inactiveFilter);
+  document.getElementById('f_dept_custom').style.display=curDept==='その他'?'block':'none';
+}
+function pickAccess(btn){
+  curAccess=btn.dataset.val;
+  pickGroup('f_access_group',curAccess,{background:'#e0f2fe',borderColor:'#0ea5e9',color:'#0369a1'},inactiveFilter);
+}
+function pickPool(btn){
+  curPool=btn.dataset.val;
+  pickGroup('f_pool_group',curPool,{background:'#d1fae5',borderColor:'#059669',color:'#065f46'},inactiveFilter);
+}
+function pickVolley(btn){
+  curVolley=btn.dataset.val;
+  pickGroup('f_volley_group',curVolley,activeFilter,inactiveFilter);
+}
+function pickStar(n){
+  curStar=n;
+  document.querySelectorAll('.star-pick').forEach(s=>s.classList.toggle('active',Number(s.dataset.n)<=n));
+  document.getElementById('f_star_label').textContent=starLabels[n]||'未評価';
+}
+
+function resetForm(){
+  curStar=0;curType='私立';curDept='普通科';curAccess='徒歩';curPool='なし';curVolley='あり（ゆるめ）';
+  ['f_name','f_deviation','f_commute','f_station','f_access_min','f_uniform_memo','f_memo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f_area').value='';
+  document.getElementById('f_dept_custom').style.display='none';
+  document.getElementById('f_dept_custom').value='';
+  document.getElementById('f_star_label').textContent='未評価';
+  document.querySelectorAll('.star-pick').forEach(s=>s.classList.remove('active'));
+  pickGroup('f_type_group',curType,activeFilter,inactiveFilter);
+  pickGroup('f_dept_group',curDept,activeFilter,inactiveFilter);
+  pickGroup('f_access_group',curAccess,{background:'#e0f2fe',borderColor:'#0ea5e9',color:'#0369a1'},inactiveFilter);
+  pickGroup('f_pool_group',curPool,{background:'#d1fae5',borderColor:'#059669',color:'#065f46'},inactiveFilter);
+  pickGroup('f_volley_group',curVolley,activeFilter,inactiveFilter);
+}
+function fillForm(s){
+  document.getElementById('f_name').value=s.name||'';
+  document.getElementById('f_deviation').value=s.deviation||'';
+  document.getElementById('f_commute').value=s.commute||'';
+  document.getElementById('f_station').value=s.station||'';
+  document.getElementById('f_access_min').value=s.accessMin||'';
+  document.getElementById('f_uniform_memo').value=s.uniformMemo||'';
+  document.getElementById('f_memo').value=s.memo||'';
+  document.getElementById('f_area').value=s.area||'';
+  if(s.dept==='その他'){document.getElementById('f_dept_custom').style.display='block';document.getElementById('f_dept_custom').value=s.deptCustom||'';}
+  curType=s.schoolType||'私立';curDept=s.dept||'普通科';curAccess=s.accessType||'徒歩';
+  curPool=s.pool||'なし';curVolley=s.volley||'あり（ゆるめ）';curStar=s.uniform||0;
+  pickGroup('f_type_group',curType,activeFilter,inactiveFilter);
+  pickGroup('f_dept_group',curDept,activeFilter,inactiveFilter);
+  pickGroup('f_access_group',curAccess,{background:'#e0f2fe',borderColor:'#0ea5e9',color:'#0369a1'},inactiveFilter);
+  pickGroup('f_pool_group',curPool,{background:'#d1fae5',borderColor:'#059669',color:'#065f46'},inactiveFilter);
+  pickGroup('f_volley_group',curVolley,activeFilter,inactiveFilter);
+  pickStar(curStar);
+}
+
+function openForm(){
+  editIdx=null;resetForm();
+  document.getElementById('formTitle').textContent='✏️ 学校を追加';
+  document.getElementById('listView').classList.add('hidden');
+  document.getElementById('formView').classList.remove('hidden');
+}
+function openEdit(idx){
+  editIdx=idx;resetForm();fillForm(schools[idx]);
+  document.getElementById('formTitle').textContent='✏️ 学校を編集';
+  document.getElementById('listView').classList.add('hidden');
+  document.getElementById('formView').classList.remove('hidden');
+}
+function closeForm(){
+  document.getElementById('formView').classList.add('hidden');
+  document.getElementById('listView').classList.remove('hidden');
+}
+function deleteSchool(idx){
+  if(confirm('削除しますか？')){schools.splice(idx,1);render();}
+}
+function saveSchool(){
+  const name=document.getElementById('f_name').value.trim();
+  if(!name){alert('学校名を入力してください');return;}
+  const s={
+    name,schoolType:curType,
+    deviation:document.getElementById('f_deviation').value,
+    commute:document.getElementById('f_commute').value,
+    area:document.getElementById('f_area').value,
+    dept:curDept,deptCustom:document.getElementById('f_dept_custom').value,
+    station:document.getElementById('f_station').value,
+    accessType:curAccess,accessMin:document.getElementById('f_access_min').value,
+    uniform:curStar,uniformMemo:document.getElementById('f_uniform_memo').value,
+    pool:curPool,volley:curVolley,memo:document.getElementById('f_memo').value
+  };
+  if(editIdx!==null) schools[editIdx]=s;
+  else schools.push(s);
+  closeForm();render();
+}
+
+// 初期ボタン状態
+setFilter('all');setSort('uniform');
+render();
+</script>
+</body>
+</html>
